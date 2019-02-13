@@ -117,7 +117,7 @@ edit the .yaml file to point to the correct .pgm
 -reduce # of particles
 -edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
 <param name="particles" value="30"/>   
--set value to 100
+-set value to 100 or 1000
 
 -reduce x y size of map (set to -10/+10)
 -edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
