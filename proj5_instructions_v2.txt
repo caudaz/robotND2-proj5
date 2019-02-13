@@ -1,9 +1,12 @@
 sudo apt-get install xterm
 
-4-create launch.sh
+4-create launch.sh 
+-this is just for demonstration
+-it is not actually used for the project
 chmod +x launch.sh
 
-5a-sudo apt-get update
+5a-
+sudo apt-get update
 sudo apt-get install ros-kinetic-navigation
 
 5b-create catkin_ws
@@ -44,6 +47,7 @@ file -> save World as -> /home/workspace/catkin_ws/World/walls_10x10m.world
 7-Testing SLAM
 cd /home/workspace/catkin_ws
 mkdir ShellScripts
+cd ShellScripts
 -create a file test_slam.sh
 -chmod +x test_slam.sh
 
