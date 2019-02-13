@@ -114,8 +114,17 @@ rosrun map_server map_saver -f /tmp/my_map
 (will save both files in a /tmp/my_map folder)
 edit the .yaml file to point to the correct .pgm
 
-edit slam_gmapping_pr2.launch
-particles 30->100
+-reduce # of particles
+-edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
+<param name="particles" value="30"/>   
+-set value to 100
+
+-reduce x y size of map (set to -10/+10)
+-edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
+     <param name="xmin" value="-50.0"/>
+      <param name="ymin" value="-50.0"/>
+      <param name="xmax" value="50.0"/>
+      <param name="ymax" value="50.0"/>
 
 
 9-TESTING NAVIGATION
