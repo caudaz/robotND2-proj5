@@ -33,7 +33,7 @@ rosdep -i install turtlebot_interactions
 rosdep -i install turtlebot_simulator
 cd /home/workspace/catkin_ws
 catkin_make
-
+ 
 6-create geometry
 cd /home/workspace/catkin_ws
 mkdir World
