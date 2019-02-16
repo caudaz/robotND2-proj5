@@ -85,7 +85,10 @@ cd /home/workspace/catkin_ws/src/wall_follower/src
 wget https://raw.githubusercontent.com/udacity/RoboND-PathPlanning/master/wall_follower.cpp
 
 -Edit the wall_follower C++ node name and change it to wall_follower.
+-change "node" to "wall_follower"
+
 -Edit the wall_follower C++ subscriber and publisher topics name.
+- "/laserscan" -> "/scan" and "/roboactuate" -> "/cmd_vel_mux/input/navi"
 
 -Write a wall_follower.sh shell script that launch the turtlebot_world.launch, gmapping_demo.launch, view_navigation.launch, and the wall_follower node.
 copy test_slam.sh wall_follower.sh
