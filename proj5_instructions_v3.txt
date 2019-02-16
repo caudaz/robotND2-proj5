@@ -47,7 +47,7 @@ edit->building editor
 create walls -> wall -> sketch the image
 file -> save as : "/home/workspace/walls_world"
 file -> exit building editor
-file -> save World as -> /home/workspace/catkin_ws/World/walls_10x10m.world
+file -> save World as -> /home/workspace/catkin_ws/src/World/walls_10x10m.world
 
 7-Testing SLAM
 cd /home/workspace/catkin_ws/src
@@ -58,7 +58,7 @@ cd ShellScripts
 
 ---------------- test_slam.sh -------------------------
 #!/bin/sh
-xterm  -e  " roslaunch turtlebot_gazebo         turtlebot_world.launch   world_file:=/home/workspace/catkin_ws/World/walls3.world" &
+xterm  -e  " roslaunch turtlebot_gazebo         turtlebot_world.launch   world_file:=/home/workspace/catkin_ws/src/World/walls3.world" &
 sleep 5
 xterm  -e  " rosrun    gmapping                 slam_gmapping" &
 #xterm  -e  " roslaunch turtlebot_navigation     gmapping_demo.launch"   &
