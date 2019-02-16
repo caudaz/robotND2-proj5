@@ -40,7 +40,7 @@ cd /home/workspace/catkin_ws
 catkin_make
  
 6-create geometry
-cd /home/workspace/catkin_ws
+cd /home/workspace/catkin_ws/src
 mkdir World
 gazebo
 edit->building editor
@@ -50,7 +50,7 @@ file -> exit building editor
 file -> save World as -> /home/workspace/catkin_ws/World/walls_10x10m.world
 
 7-Testing SLAM
-cd /home/workspace/catkin_ws
+cd /home/workspace/catkin_ws/src
 mkdir ShellScripts
 cd ShellScripts
 -create a file test_slam.sh
