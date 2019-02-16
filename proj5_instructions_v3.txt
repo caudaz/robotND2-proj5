@@ -1,0 +1,227 @@
+sudo apt-get install xterm
+
+sudo add-apt-repository ppa:notepadqq-team/notepadqq
+sudo apt-get update
+sudo apt-get install notepadqq-gtk
+notepadqq --allow-root
+
+4-create launch.sh 
+-this is just for demonstration
+-it is not actually used for the project
+chmod +x launch.sh
+
+5a-
+sudo apt-get update
+sudo apt-get install ros-kinetic-navigation
+
+5b-create catkin_ws
+cd /home/workspace
+mkdir -p catkin_ws/src
+cd catkin_ws/src
+catkin_init_workspace
+
+5c-grab all the official ROS packages from GITHUB
+cd /home/workspace/catkin_ws/src
+git clone https://github.com/ros-perception/slam_gmapping
+git clone https://github.com/turtlebot/turtlebot
+git clone https://github.com/turtlebot/turtlebot_interactions
+git clone https://github.com/turtlebot/turtlebot_simulator
+cd /home/workspace/catkin_ws
+catkin_make
+
+5d-install all the packages dependencies
+cd /home/workspace/catkin_ws/src
+source /home/workspace/catkin_ws/devel/setup.bash
+rosdep -i install slam_gmapping
+rosdep -i install turtlebot
+rosdep -i install turtlebot_interactions
+rosdep -i install turtlebot_simulator
+cd /home/workspace/catkin_ws
+catkin_make
+ 
+6-create geometry
+cd /home/workspace/catkin_ws
+mkdir World
+gazebo
+edit->building editor
+create walls -> wall -> sketch the image
+file -> save as : "/home/workspace/walls_world"
+file -> exit building editor
+file -> save World as -> /home/workspace/catkin_ws/World/walls_10x10m.world
+
+7-Testing SLAM
+cd /home/workspace/catkin_ws
+mkdir ShellScripts
+cd ShellScripts
+-create a file test_slam.sh
+-chmod +x test_slam.sh
+
+---------------- test_slam.sh -------------------------
+#!/bin/sh
+xterm  -e  " roslaunch turtlebot_gazebo         turtlebot_world.launch   world_file:=/home/workspace/catkin_ws/World/walls3.world" &
+sleep 5
+xterm  -e  " rosrun    gmapping                 slam_gmapping" &
+#xterm  -e  " roslaunch turtlebot_navigation     gmapping_demo.launch"   &
+sleep 5
+xterm  -e  " roslaunch turtlebot_rviz_launchers view_navigation.launch" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_teleop         keyboard_teleop.launch" 
+-----------------------------------------
+
+source /home/workspace/catkin_ws/devel/setup.bash
+./test_slam.sh
+
+
+8-Wall Follower
+-get rid of the keyboard teleop node and instead interface the robot with a wall_follower node.
+-you will be given the C++ wall_follower node
+
+-Create a wall_follower package.
+mkdir /home/workspace/catkin_ws/src/wall_follower
+mkdir /home/workspace/catkin_ws/src/wall_follower/src
+
+-Create a wall_follower C++ node by cloning this repo.
+cd /home/workspace/catkin_ws/src/wall_follower/src
+wget https://raw.githubusercontent.com/udacity/RoboND-PathPlanning/master/wall_follower.cpp
+
+-Edit the wall_follower C++ node name and change it to wall_follower.
+-Edit the wall_follower C++ subscriber and publisher topics name.
+
+-Write a wall_follower.sh shell script that launch the turtlebot_world.launch, gmapping_demo.launch, view_navigation.launch, and the wall_follower node.
+copy test_slam.sh wall_follower.sh
+-edit last line, replace teleop by:
+xterm -e "rosrun wall_follower wall_follower" 
+
+-Edit the CMakeLists.txt file and add: 1-directories, 2-executable, and 3-target link libraries.
+-http://wiki.ros.org/catkin/CMakeLists.txt
+cd /home/workspace/catkin_ws/src/wall_follower
+wget https://raw.githubusercontent.com/froohoo/RoboND-Home-Service-Bot/master/wall_follower/CMakeLists.txt
+wget https://raw.githubusercontent.com/northerncat/RoboND-Home-Service/master/catkin_ws/src/wall_follower/package.xml
+-Build your catkin_ws.
+catkin_make
+-Run your wall_follower.sh shell script to autonomously map the environment.
+-Once you are satisfied with the map, kill the wall_follower terminal and save your map in both pgm and yaml formats in the World directory of your catkin_ws/src.
+
+
+source /home/workspace/catkin_ws/devel/setup.bash
+./wall_follower.sh
+
+-to save the maps in yaml and pgm format:
+open a new xterm
+cd /home/workspace
+source /home/workspace/catkin_ws/devel/setup.bash
+rosrun map_server map_saver -f /tmp/my_map
+(will save both files in a /tmp/my_map folder)
+edit the .yaml file to point to the correct .pgm
+
+-reduce # of particles
+-edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
+<param name="particles" value="30"/>   
+-set value to 100 or 1000
+
+-reduce x y size of map (set to -10/+10)
+-edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
+     <param name="xmin" value="-50.0"/>
+      <param name="ymin" value="-50.0"/>
+      <param name="xmax" value="50.0"/>
+      <param name="ymax" value="50.0"/>
+
+
+9-TESTING NAVIGATION
+on ShellScripts create:
+test_navigation.sh
+------------------
+#!/bin/sh
+xterm  -e  " roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=/home/workspace/catkin_ws/World/2018-10-31_walls.world" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_navigation amcl_demo.launch map_file:=/home/workspace/catkin_ws/src/my_map10.yaml" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_rviz_launchers view_navigation.launch"
+
+./test_navigation.sh
+
+ERROR: timeout on transform
+Mainly, the problem occurs because launching AMCL node for turtlebot results in /scan topic not publishing anything. What could be the reasons?
+I found that the problem is because both *turtlebot_demo.launch* and *amcl_demo.launch* start depthimage_to_laserscan node, resulting in shutdown of the node
+
+10-REACHING MULTIPLE GOALS
+
+Create a pick_objects package with move_base_msgs, actionlib, and roscpp dependencies
+Create a pick_objects C++ node
+Edit the C++ node and modify it's node name and frame_id
+Modify the C++ node and publish a second goal for the robot to reach
+Display messages to track if robot successfully reached both zones
+Pause 5 seconds after reaching the pickup zone
+Edit the CMakeLists.txt file and add directories, executable, and target link libraries
+Build your catkin_ws
+
+pick_objects\
+pick_objects\CMakeLists.txt
+pick_objects\package.xml
+pick_objects\src\pick_objects.cpp
+
+Create a pick_objects.sh scrip that launches the turtlebot, AMCL, rviz and your pick_objects node
+
+#!/bin/sh
+xterm  -e  " roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=/home/workspace/catkin_ws/World/2018-10-31_walls.world" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_navigation amcl_demo.launch   map_file:=/home/workspace/catkin_ws/src/my_map10.yaml" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_rviz_launchers view_navigation.launch" &
+sleep 5
+xterm  -e  " rosrun pick_objects pick_objects" 
+
+
+11-Modeling Virtual Objects
+
+You will need to first run this node and visualize the markers in rviz. Then you’ll need to modify the code and publish a single shape example: a cube. Your code should follow this algorithm:
+•	Publish the marker at the pickup zone
+•	Pause 5 seconds
+•	Hide the marker
+•	Pause 5 seconds
+•	Publish the marker at the drop off zone
+Later you will be able to combine this node with the pick_objects node coded earlier to simulate the full home service robot.
+
+Modeling Virtual Objects
+Follow these steps to create a virtual object in rviz:
+-Create an add_markers package with roscpp and visualization_msgs dependencies
+-Create an add_markers C++ node 
+-Copy the C++ code and edit the node name to add_markers	 
+-Edit the frame_id 
+-Modify the C++ code to publish a single shape as describer earlier 
+-Edit the CMakeLists.txt file and add the executable, and libraries 
+-Build the catkin_ws 
+
+add_markers\
+add_markers\CMakeLists.txt
+add_markers\package.xml
+add_markers\src\add_markers.cpp
+
+-Create an add_marker.sh shell script that launches the turtlebot, AMCL, rviz, and your add_markers node. 
+#!/bin/sh
+xterm  -e  " roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=/home/workspace/catkin_ws/World/2018-10-31_walls.world" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_navigation amcl_demo.launch   map_file:=/home/workspace/catkin_ws/src/my_map10.yaml" &
+sleep 5
+xterm  -e  " roslaunch turtlebot_rviz_launchers view_navigation.launch" &
+sleep 5
+xterm  -e  " rosrun add_markers add_markers"
+
+-Launch your shell script and manually add a Marker in rviz
+
+
+
+12-Putting it all together
+the add_markers and pick_objects node should be communicating. Or, more precisely, the add_markers node should subscribe to your odometry to keep track of your robot pose.
+Modify the add_markers node as follows:
+•	Initially show the marker at the pickup zone
+•	Hide the marker once your robot reaches the pickup zone
+•	Wait 5 seconds to simulate a pickup
+•	Show the marker at the drop off zone once your robot reaches it
+
+Follow these steps to successfully simulate a home service robot:
+-Edit the add_markers node and subscribe to odometry values
+-Modify the C++ node as described earlier
+-Build your catkin_ws
+-Add markers to the view_navigation.launch file and save it as a new rviz configuration
+-Create a home_service.sh file that launches the turtlebot, AMCL, rviz config file, pick_objects and add_markers nodes
