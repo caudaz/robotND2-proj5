@@ -117,17 +117,20 @@ rosrun map_server map_saver -f /tmp/my_map
 (will save both files in a /tmp/my_map folder)
 edit the .yaml file to point to the correct .pgm
 
--reduce # of particles
+Will need to change the following settings to produce a good map:
 -edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
-<param name="particles" value="30"/>   
--set value to 100 or 1000
-
--reduce x y size of map (set to -10/+10)
--edit src/slam/slam_gmapping/gmapping/launch/slam_gmapping_pr2.launch
-     <param name="xmin" value="-50.0"/>
-      <param name="ymin" value="-50.0"/>
-      <param name="xmax" value="50.0"/>
-      <param name="ymax" value="50.0"/>
+      <param name="srr" value="0.0"/>               <!-- original 0.1 -->
+      <param name="srt" value="0.0"/>               <!-- original 0.2 -->
+      <param name="str" value="0.0"/>               <!-- original 0.1 -->
+      <param name="stt" value="0.0"/>               <!-- original 0.2 -->
+      <param name="linearUpdate" value="0.2"/>      <!-- original 1.0 -->
+      <param name="angularUpdate" value="0.1"/>     <!-- original 0.5 -->
+      <param name="particles" value="130"/>         <!-- original 30 -->
+      <param name="xmin" value="-10.0"/>            <!-- original -50.0 -->
+      <param name="ymin" value="-10.0"/>            <!-- original -50.0 -->
+      <param name="xmax" value="+10.0"/>            <!-- original +50.0 -->
+      <param name="ymax" value="+10.0"/>            <!-- original +50.0 -->
+      <param name="minimumScore" value="10000"/>    <!-- original NONE -->
 
 
 9-TESTING NAVIGATION
